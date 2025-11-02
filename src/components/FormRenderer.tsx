@@ -49,12 +49,20 @@ export function FormRenderer({
             })}
 
             <div className="flex gap-4 mt-6">
-                <button onClick={handleSaveDraft} className="bg-gray-300 text-black rounded px-4 py-2">
-                    Save Draft
-                </button>
-                <button onClick={handleSubmitAll} className="bg-green-600 text-white rounded px-4 py-2">
-                    Submit All
-                </button>
+                {initialData.status === "draft" ?
+                    <>
+                        <button onClick={handleSaveDraft} className="bg-gray-300 text-black rounded px-4 py-2 cursor-pointer hover:opacity-85 transition-all duration-200">
+                            Save Draft
+                        </button>
+                        <button onClick={handleSubmitAll} className="bg-green-600 text-white rounded px-4 py-2 cursor-pointer hover:opacity-85 transition-all duration-200">
+                            Submit All
+                        </button>
+                    </>
+                    :
+                    <button className="bg-gray-300 text-black rounded px-4 py-2 cursor-pointer hover:opacity-85 transition-all duration-200">
+                        Download
+                    </button>
+                }
             </div>
         </div>
     );

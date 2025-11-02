@@ -73,6 +73,14 @@ export default function Dashboard()
                                     Continue
                                 </Link>
                             )}
+                            {f.status === "submitted" && (
+                                <Link
+                                    to={`/form/${f.client_id}`}
+                                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                                >
+                                    View
+                                </Link>
+                            )}
                         </li>
                     ))}
                 </ul>

@@ -12,15 +12,14 @@ export function useFormProgress(clientId: string) {
 
     const { data: result, error } = await supabase
       .from("responses")
-      .select("data")
+      .select("*")
       .eq("client_id", clientId)
       .single();
 
     if (error && error.code !== "PGRST116") {
       console.error("Error loading form data:", error.message);
     }
-
-    setData(result?.data ?? {});
+    setData(result ?? {});
     setLoading(false);
   }, [clientId]);
 
@@ -38,6 +37,7 @@ export function useFormProgress(clientId: string) {
           client_id: clientId,
           data: newData,
           updated_at: new Date().toISOString(),
+          status: "submitted",
         });
 
         if (error) throw error;
