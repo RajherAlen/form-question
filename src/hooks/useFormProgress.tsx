@@ -20,7 +20,7 @@ export function useFormProgress(clientId: string | null) {
       .from("responses")
       .select("*")
       .eq("client_id", clientId)
-      .single();
+      .maybeSingle();
 
     if (error && error.code !== "PGRST116") {
       console.error("Error loading form data:", error.message);
