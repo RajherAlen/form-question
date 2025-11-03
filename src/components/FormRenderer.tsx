@@ -46,9 +46,57 @@ export function FormRenderer({
         toast.success("Form submitted successfully!");
     };
 
+    // --- inside FormRenderer's render area ---
+    const visibleQuestions: Question[] = [];
+    const skippedIds = new Set<number | string>();
+
+    // build a map from id -> index for quick jump lookups
+    const idToIndex = new Map<number | string, number>();
+    formSchema.forEach((q, idx) => idToIndex.set(q.id, idx));
+
+    for (let i = 0; i < formSchema.length; i++) {
+        const q = formSchema[i];
+
+        // skip if previously marked by a jump
+        if (skippedIds.has(q.id)) continue;
+
+        // check dependsOn (AND semantics)
+        if (q.dependsOn && q.dependsOn.length > 0) {
+            const visible = q.dependsOn.every((cond) => {
+                const answer = answers[cond.questionId];
+                if (Array.isArray(cond.value)) return cond.value.includes(answer);
+                return answer === cond.value;
+            });
+            if (!visible) continue;
+        }
+
+        // add question as visible
+        visibleQuestions.push(q);
+
+        // if this question has an answer that maps to an option with jumpTo, mark intermediate questions as skipped
+        const currentAnswer = answers[q.id];
+        if (q.options && typeof currentAnswer !== "undefined" && currentAnswer !== null) {
+            const matchedOption = q.options.find((opt) => opt.value === currentAnswer);
+            if (matchedOption && matchedOption.jumpTo) {
+                // find index of question with id === jumpTo
+                const targetIdx = idToIndex.get(matchedOption.jumpTo);
+                if (typeof targetIdx !== "undefined") {
+                    // mark all between current pos (i) and targetIdx (exclusive) as skipped
+                    const start = i + 1;
+                    const end = targetIdx - 1;
+                    if (start <= end) {
+                        for (let j = start; j <= end; j++) {
+                            skippedIds.add(formSchema[j].id);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return (
         <div className="flex-1 flex flex-col overflow-hidden h-screen bg-gray-50">
-            <MainHeader headerTitle={ initialData.data ? 'Edit Question Form' : "Create New Question Form"}>
+            <MainHeader headerTitle={initialData.data ? 'Edit Question Form' : "Create New Question Form"}>
                 <div className="flex gap-2">
 
 
@@ -79,21 +127,15 @@ export function FormRenderer({
             <div className="flex-1 overflow-y-auto p-6">
                 <div className=" max-w-4xl  space-y-6">
 
-                    {formSchema.map((q: Question, idx: number) => {
-                        if (q.dependsOn) {
-                            const val = answers[q.dependsOn.questionId];
-                            if (val !== q.dependsOn.value) return null;
-                        }
-                        return (
-                            <QuestionItem
-                                key={q.id}
-                                index={idx}
-                                question={q}
-                                value={answers[q.id]}
-                                onChange={(val) => handleChange(q.id, val)}
-                            />
-                        );
-                    })}
+                    {visibleQuestions.map((q: Question, idx: number) => (
+                        <QuestionItem
+                            key={q.id}
+                            index={idx}
+                            question={q}
+                            value={answers[q.id]}
+                            onChange={(val) => handleChange(q.id, val)}
+                        />
+                    ))}
                 </div>
             </div>
         </div>

@@ -68,7 +68,7 @@ export default function Dashboard() {
                     {f.status === "draft" && (
                       <Link
                         to={`/form/${f.client_id}`}
-                        className="text-xs flex items-center gap-2 text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-100 transition-all duration-150"
+                        className="text-xs flex items-center gap-2 text-gray-700 border border-amber-500 px-2 py-1 rounded hover:bg-amber-500 hover:border-amber-500 transition-all duration-150 hover:text-white"
                       >
                         Edit <Pencil width={14} strokeWidth={1.5} height={14} />
                       </Link>
@@ -77,7 +77,7 @@ export default function Dashboard() {
                     {f.status === "submitted" && (
                       <Link
                         to={`/form/${f.client_id}`}
-                        className="text-xs flex items-center gap-2 text-gray-700 border border-gray-300 px-2 py-1 rounded hover:bg-gray-100 transition-all duration-150"
+                        className="text-xs flex items-center gap-2 text-gray-700 border border-blue-500 px-2 py-1 rounded hover:bg-blue-500 hover:border-blue-500 transition-all duration-150 hover:text-white"
                       >
                         View <Eye width={14} strokeWidth={1.5} height={14} />
                       </Link>
