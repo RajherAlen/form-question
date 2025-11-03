@@ -6,11 +6,13 @@ export function QuestionItem({
   value,
   index,
   onChange,
+  disabled
 }: {
   question: Question;
   value: any;
   index: number;
   onChange: (val: any) => void;
+  disabled?: boolean
 }) {
   if (question.type === "text") {
     return (
@@ -22,6 +24,7 @@ export function QuestionItem({
           type="text"
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
           className="border rounded border-gray-300 px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ml-6"
         />
       </div>
@@ -38,7 +41,9 @@ export function QuestionItem({
           {question.options?.map((opt) => (
             <label
               key={opt.value}
-              className="flex items-center gap-2 text-gray-800 cursor-pointer text-sm"
+              className={`flex items-center gap-2 text-gray-800 text-sm ${
+                disabled  ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
             >
               <input
                 type="radio"
@@ -46,6 +51,7 @@ export function QuestionItem({
                 value={opt.value}
                 checked={value === opt.value}
                 onChange={() => onChange(opt.value)}
+                disabled={disabled}
                 className="accent-blue-600"
               />
               {opt.label}
@@ -65,6 +71,7 @@ export function QuestionItem({
         <select
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
           className="border rounded px-3 py-2 border-gray-300 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ml-6"
         >
           <option value="">Select...</option>

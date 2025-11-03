@@ -3,6 +3,7 @@ import { QuestionItem } from "./Question";
 import { formSchema, type Question } from "../data/FormSchema";
 import MainHeader from "./MainHeader";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export function FormRenderer({
     initialData = {},
@@ -11,6 +12,8 @@ export function FormRenderer({
     initialData?: Record<string, any>;
     onSubmit: (data: Record<string, any>) => void;
 }) {
+    const navigate = useNavigate();
+
     const [answers, setAnswers] = useState<Record<string, any>>(initialData.data || {});
 
     useEffect(() => {
@@ -30,6 +33,7 @@ export function FormRenderer({
         onSubmit({ ...answers, status: "draft", updated_at: new Date().toISOString() });
 
         toast.success("Draft saved successfully!");
+        navigate('/')
     };
 
     const handleSubmitAll = () => {
@@ -42,13 +46,12 @@ export function FormRenderer({
         onSubmit({ ...answers, status: "submitted", updated_at: new Date().toISOString() });
 
         toast.success("Form submitted successfully!");
+        navigate('/')
     };
 
-    // --- inside FormRenderer's render area ---
     const visibleQuestions: Question[] = [];
     const skippedIds = new Set<number | string>();
 
-    // build a map from id -> index for quick jump lookups
     const idToIndex = new Map<number | string, number>();
     formSchema.forEach((q, idx) => idToIndex.set(q.id, idx));
 
@@ -132,6 +135,7 @@ export function FormRenderer({
                             question={q}
                             value={answers[q.id]}
                             onChange={(val) => handleChange(q.id, val)}
+                            disabled={initialData.status === "submitted"}
                         />
                     ))}
                 </div>
