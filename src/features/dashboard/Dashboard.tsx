@@ -61,13 +61,17 @@ export default function Dashboard() {
                             placeholder="Search by client..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                         />
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     </div>
                 </div>
 
-                {loading && <p className="text-gray-600">Loading forms...</p>}
+                {loading && <div>
+                    <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
+                    <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
+                    <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
+                </div>}
 
                 {!loading && filteredForms.length === 0 && (
                     <div className="text-gray-500">
@@ -95,7 +99,7 @@ export default function Dashboard() {
                                         </div>
 
                                         <div className="flex items-center gap-6">
-                                            <div className="flex gap-3 items-center"> 
+                                            <div className="flex gap-3 items-center">
                                                 <p className="flex items-center gap-1 text-xs text-gray-600">
                                                     <span
                                                         className={`text-gray-800 capitalize rounded-full px-3 py-1 text-xs ${f.status === "submitted" ? "bg-green-200" : "bg-yellow-200"

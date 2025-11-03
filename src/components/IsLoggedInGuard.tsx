@@ -30,7 +30,11 @@ export const IsLoggedInGuard = ({ children, redirectTo = "/login" }: IProps) => 
         };
     }, []);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <div className='w-full'>
+        <div className='h-1.5 w-full bg-pink-100 overflow-hidden'>
+            <div className='progress w-full h-full bg-pink-500 left-right'></div>
+        </div>
+    </div>;
 
     // If user is not logged in, redirect
     if (!user) return <Navigate to={redirectTo} />;
