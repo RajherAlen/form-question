@@ -80,44 +80,54 @@ export default function Dashboard() {
                         {filteredForms.map((f) => (
                             <li
                                 key={f.client_id + f.updated_at}
-                                className="border border-gray-300 p-4 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shadow"
+                                className="border border-gray-300 p-2 pl-3 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white"
                             >
                                 <div className="flex-1">
                                     <div className="flex justify-between flex-1 items-center">
-                                        <p className="font-semibold text-gray-800">Client: {f.client_id}</p>
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex gap-2 items-center">
+                                                <span className="text-xs">Client ID:</span>
+                                                <span className="font-semibold text-gray-800">
+                                                    {f.client_id}
 
-                                        {f.status === "draft" && (
-                                            <Link
-                                                to={`/form/${f.client_id}`}
-                                                className="text-xs flex items-center gap-2 text-gray-700 border border-amber-500 px-2 py-1 rounded hover:bg-amber-500 hover:border-amber-500 transition-all duration-150 hover:text-white"
-                                            >
-                                                Edit <Pencil width={14} strokeWidth={1.5} height={14} />
-                                            </Link>
-                                        )}
+                                                </span>
+                                            </div>
+                                        </div>
 
-                                        {f.status === "submitted" && (
-                                            <Link
-                                                to={`/form/${f.client_id}`}
-                                                className="text-xs flex items-center gap-2 text-gray-700 border border-blue-500 px-2 py-1 rounded hover:bg-blue-500 hover:border-blue-500 transition-all duration-150 hover:text-white"
-                                            >
-                                                View <Eye width={14} strokeWidth={1.5} height={14} />
-                                            </Link>
-                                        )}
+                                        <div className="flex items-center gap-6">
+                                            <div className="flex gap-3 items-center"> 
+                                                <p className="flex items-center gap-1 text-xs text-gray-600">
+                                                    <span
+                                                        className={`text-gray-800 capitalize rounded-full px-3 py-1 text-xs ${f.status === "submitted" ? "bg-green-200" : "bg-yellow-200"
+                                                            }`}
+                                                    >
+                                                        {f.status}
+                                                    </span>
+                                                </p>
+
+                                                <p className="text-xs text-gray-500">
+                                                    Last updated: {new Date(f.updated_at).toLocaleString()}
+                                                </p>
+                                            </div>
+                                            {f.status === "draft" && (
+                                                <Link
+                                                    to={`/form/${f.client_id}`}
+                                                    className="text-xs flex items-center gap-2 text-gray-700 border border-amber-500 px-2 py-1 rounded hover:bg-amber-500 hover:border-amber-500 transition-all duration-150 hover:text-white"
+                                                >
+                                                    Edit <Pencil width={14} strokeWidth={1.5} height={14} />
+                                                </Link>
+                                            )}
+
+                                            {f.status === "submitted" && (
+                                                <Link
+                                                    to={`/form/${f.client_id}`}
+                                                    className="text-xs flex items-center gap-2 text-gray-700 border border-blue-500 px-2 py-1 rounded hover:bg-blue-500 hover:border-blue-500 transition-all duration-150 hover:text-white"
+                                                >
+                                                    View <Eye width={14} strokeWidth={1.5} height={14} />
+                                                </Link>
+                                            )}
+                                        </div>
                                     </div>
-
-                                    <p className="flex items-center gap-1 text-xs text-gray-600 mt-1">
-                                        Status:
-                                        <span
-                                            className={`ml-1 text-gray-800 capitalize rounded-full px-3 text-xs ${f.status === "submitted" ? "bg-green-100" : "bg-yellow-100"
-                                                }`}
-                                        >
-                                            {f.status}
-                                        </span>
-                                    </p>
-
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Last updated: {new Date(f.updated_at).toLocaleString()}
-                                    </p>
                                 </div>
                             </li>
                         ))}

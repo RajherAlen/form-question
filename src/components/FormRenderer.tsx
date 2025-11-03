@@ -17,8 +17,6 @@ export function FormRenderer({
         if (initialData?.data) setAnswers(initialData.data);
     }, [initialData]);
 
-    console.log(answers, initialData)
-
     const handleChange = (questionId: number | string, val: any) => {
 
         setAnswers((prev) => ({ ...prev, [questionId]: val }));
