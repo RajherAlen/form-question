@@ -1,13 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-export function useFormProgress(clientId: string) {
+export function useFormProgress(clientId: string | null) {
   const [data, setData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    if (!clientId) return;
+    // If no clientId (new form), skip fetch and set loading false
+    if (!clientId) {
+      setData({});
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
     const { data: result, error } = await supabase
@@ -19,6 +25,7 @@ export function useFormProgress(clientId: string) {
     if (error && error.code !== "PGRST116") {
       console.error("Error loading form data:", error.message);
     }
+
     setData(result ?? {});
     setLoading(false);
   }, [clientId]);
@@ -29,15 +36,14 @@ export function useFormProgress(clientId: string) {
 
   const save = useCallback(
     async (newData: Record<string, any>) => {
-      if (!clientId) return;
       setSaving(true);
 
       try {
         const { error } = await supabase.from("responses").upsert({
-          client_id: clientId,
+          client_id: newData.clientId || clientId || "",
           data: newData,
           updated_at: new Date().toISOString(),
-          status: "submitted",
+          status: newData.status ?? "draft",
         });
 
         if (error) throw error;

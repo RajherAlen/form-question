@@ -4,17 +4,17 @@ export type QuestionOption = {
 };
 
 export type Question = {
-  id: number;
+  id: number | string;
   label: string;
   type: "text" | "radio" | "select";
   options?: QuestionOption[];
-  dependsOn?: { questionId: number; value: any }; // show only if previous question has this value
+  dependsOn?: { questionId: number; value: any };
   required?: boolean;
 };
 
 export const formSchema: Question[] = [
-  { id: 1, label: "Client ID", type: "text", required: true },
-  { id: 2, label: "Client Name", type: "text", required: true },
+  { id: 'clientId', label: "Client ID", type: "text", required: true },
+  { id: 'clientName', label: "Client Name", type: "text", required: true },
   { id: 3, label: "Who is the primary contact for the books and bookkeeping questions?", type: "text" },
   { id: 4, label: "What is his/her email address?", type: "text" },
   { id: 5, label: "What is his/her phone number?", type: "text" },

@@ -4,17 +4,20 @@ import { useFormProgress } from "../../hooks/useFormProgress";
 
 export default function FormPage() {
   const { clientId } = useParams<{ clientId: string }>();
+  const isNew = clientId === "create";
 
-  // Call hook unconditionally
-  const { data, save, loading, saving } = useFormProgress(clientId ?? "");
+  // Pass null to skip fetching for new forms
+  const { data, save, loading, saving } = useFormProgress(isNew ? '' : clientId ?? "");
 
-  if (!clientId) return <p>No client selected</p>;
-  if (loading) return <p>Loading form...</p>;
+  const initialData = isNew ? {} : data;
+
+  // Only show loading if we are fetching an existing form
+  if (!isNew && loading) return <p className="text-gray-600">Loading form...</p>;
 
   return (
-    <>
-      <FormRenderer initialData={data} onSubmit={save} />
+    <div className="flex-1 flex flex-col overflow-hidden h-screen bg-gray-50">
+      <FormRenderer initialData={initialData} onSubmit={save} />
       {saving && <p className="text-sm text-gray-500 mt-2">Saving...</p>}
-    </>
+    </div>
   );
 }
