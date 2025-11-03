@@ -160,9 +160,9 @@ export const formSchema: Question[] = [
     label: "What was the tax prep process in 2024?",
     type: "radio",
     options: [
-      { value: "same_as_prior_year", label: "Same as prior year (SALY)" },
-      { value: "changed_process", label: "Changed process / New preparer / New workflow" },
-      { value: "unsure", label: "Unsure / TBD" },
+      { value: "TB", label: "TB" },
+      { value: "WUTB", label: "WUTB" },
+      { value: "other", label: "Other" },
     ],
   },
 
@@ -171,10 +171,11 @@ export const formSchema: Question[] = [
     label: "What was 2024 Revenue?",
     type: "radio",
     options: [
-      { value: "under_1m", label: "Under $1 million" },
+      { value: "under_1m", label: "< $1 million" },
       { value: "1_to_5m", label: "$1 – $5 million" },
-      { value: "5_to_10m", label: "$5 – $10 million" },
-      { value: "over_10m", label: "Over $10 million" },
+      { value: "5_to_10m", label: "$5 – $20 million" },
+      { value: "20_to_50m", label: "$20 – $50 million" },
+      { value: "over_50m", label: "$50million+" },
     ],
   },
 
@@ -245,7 +246,6 @@ export const formSchema: Question[] = [
     id: 30,
     label: "Does Roth file the 1099s for the client?",
     type: "radio",
-    dependsOn: [{ questionId: 28, value: "roth" }],
     options: [
       { value: "yes", label: "Yes" },
       { value: "no", label: "No" },
