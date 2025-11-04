@@ -4,13 +4,16 @@ import { formSchema, type Question } from "../data/FormSchema";
 import MainHeader from "./MainHeader";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import DownloadDropdown from "./DownloadDropdown";
 
 export function FormRenderer({
     initialData = {},
     onSubmit,
+    setToDraft
 }: {
     initialData?: Record<string, any>;
     onSubmit: (data: Record<string, any>) => void;
+    setToDraft?: (data: Record<string, any>) => void;
 }) {
     const navigate = useNavigate();
 
@@ -21,9 +24,14 @@ export function FormRenderer({
     }, [initialData]);
 
     const handleChange = (questionId: number | string, val: any) => {
-
         setAnswers((prev) => ({ ...prev, [questionId]: val }));
     };
+
+    const handleDraftMode = () => {
+        if (setToDraft) {
+            setToDraft(answers);
+        }
+    }
 
     const handleSaveDraft = () => {
         if (!answers?.clientId) {
@@ -46,7 +54,6 @@ export function FormRenderer({
         onSubmit({ ...answers, status: "submitted", updated_at: new Date().toISOString() });
 
         toast.success("Form submitted successfully!");
-        navigate('/')
     };
 
     const visibleQuestions: Question[] = [];
@@ -102,10 +109,14 @@ export function FormRenderer({
 
 
                     {initialData.status === "submitted" ? (
-                        null
-                        // <button className="bg-gray-300 text-black rounded px-4 py-2 hover:opacity-85 transition-all duration-200 cursor-pointer">
-                        //     Download
-                        // </button>
+                        <div className="flex gap-2">
+                            <DownloadDropdown
+                                initialData={initialData}
+                            />
+                            <button onClick={handleDraftMode} className="bg-blue-500 text-white rounded px-4 py-2 hover:opacity-85 transition-all duration-200 cursor-pointer">
+                                Edit
+                            </button>
+                        </div>
                     ) : (
                         <>
                             <button
@@ -123,7 +134,7 @@ export function FormRenderer({
                         </>
                     )}
                 </div>
-            </MainHeader>
+            </MainHeader >
 
             <div className="flex-1 overflow-y-auto p-6">
                 <div className=" max-w-4xl  space-y-6">
@@ -140,6 +151,6 @@ export function FormRenderer({
                     ))}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
