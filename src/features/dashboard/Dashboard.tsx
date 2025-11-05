@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import { Eye, Pencil, Plus, Search } from "lucide-react";
+import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import MainHeader from "../../components/MainHeader";
 
 type FormData = {
@@ -9,12 +9,15 @@ type FormData = {
     data: Record<string, any>;
     status: "draft" | "submitted";
     updated_at: string;
+    id: string;
 };
 
 export default function Dashboard() {
     const [forms, setForms] = useState<FormData[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
 
     const fetchForms = async () => {
         setLoading(true);
@@ -35,6 +38,23 @@ export default function Dashboard() {
     useEffect(() => {
         fetchForms();
     }, []);
+
+    const handleDelete = async () => {
+        if (!selectedFormId) return;
+        try {
+            await supabase.from("responses").delete().eq("id", selectedFormId);
+            setIsModalOpen(false);
+            setSelectedFormId(null);
+            fetchForms();
+        } catch (error) {
+            console.error("Error deleting form:", error);
+        }
+    };
+
+    const openDeleteModal = (id: string) => {
+        setSelectedFormId(id);
+        setIsModalOpen(true);
+    };
 
     const filteredForms = forms.filter((f) =>
         f.client_id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -93,7 +113,6 @@ export default function Dashboard() {
                                                 <span className="text-xs">Client ID:</span>
                                                 <span className="font-semibold text-gray-800">
                                                     {f.client_id}
-
                                                 </span>
                                             </div>
                                         </div>
@@ -113,23 +132,31 @@ export default function Dashboard() {
                                                     Last updated: {new Date(f.updated_at).toLocaleString()}
                                                 </p>
                                             </div>
-                                            {f.status === "draft" && (
-                                                <Link
-                                                    to={`/form/${f.client_id}`}
-                                                    className="text-xs flex items-center gap-2 text-gray-700 border border-amber-500 px-2 py-1 rounded hover:bg-amber-500 hover:border-amber-500 transition-all duration-150 hover:text-white"
-                                                >
-                                                    Edit <Pencil width={14} strokeWidth={1.5} height={14} />
-                                                </Link>
-                                            )}
+                                            <div className="flex gap-2">
+                                                {f.status === "draft" && (
+                                                    <Link
+                                                        to={`/form/${f.client_id}`}
+                                                        className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
+                                                    >
+                                                        <Pencil width={14} strokeWidth={1.5} height={14} />
+                                                    </Link>
+                                                )}
 
-                                            {f.status === "submitted" && (
-                                                <Link
-                                                    to={`/form/${f.client_id}`}
-                                                    className="text-xs flex items-center gap-2 text-gray-700 border border-blue-500 px-2 py-1 rounded hover:bg-blue-500 hover:border-blue-500 transition-all duration-150 hover:text-white"
+                                                {f.status === "submitted" && (
+                                                    <Link
+                                                        to={`/form/${f.client_id}`}
+                                                        className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
+                                                    >
+                                                        <Eye width={14} strokeWidth={1.5} height={14} />
+                                                    </Link>
+                                                )}
+                                                <button
+                                                    onClick={() => openDeleteModal(f.id)}
+                                                    className="text-xs flex items-center gap-1 text-red-500 border border-red-500 px-2 py-1 rounded hover:bg-red-500 hover:border-red-500 transition-all duration-150 hover:text-white cursor-pointer"
                                                 >
-                                                    View <Eye width={14} strokeWidth={1.5} height={14} />
-                                                </Link>
-                                            )}
+                                                    <Trash width={14} strokeWidth={1.5} height={14} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -138,6 +165,29 @@ export default function Dashboard() {
                     </ul>
                 )}
             </main>
+
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+                        <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
+                        <p className="text-sm text-gray-600 mb-6">Are you sure you want to delete this form summary? This action cannot be undone.</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition cursor-pointer"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
