@@ -15,11 +15,10 @@ export function useFormProgress(id: string | null) {
 
         setLoading(true);
 
-        // Query JSON column 'data' for clientId
         const { data: result, error } = await supabase
             .from("responses")
             .select("*")
-            .eq("id", id) // <-- check clientId inside JSON 'data' column
+            .eq("id", id)
             .maybeSingle();
 
         if (error && error.code !== "PGRST116") {
