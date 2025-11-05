@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import MainHeader from "../../components/MainHeader";
+import DownloadDropdown from "../../components/DownloadDropdown";
 
 type FormData = {
     client_id: string;
@@ -19,6 +20,7 @@ export default function Dashboard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "submitted">("all");
+
     const location = useLocation();
 
     const fetchForms = async () => {
@@ -102,8 +104,8 @@ export default function Dashboard() {
                             <button
                                 key={status}
                                 className={`px-3 py-1 rounded-lg transition cursor-pointer ${statusFilter === status
-                                        ? "bg-blue-600 text-white"
-                                        : "text-gray-700 hover:bg-gray-300"
+                                    ? "bg-blue-600 text-white"
+                                    : "text-gray-700 hover:bg-gray-300"
                                     }`}
                                 onClick={() => setStatusFilter(status)}
                             >
@@ -128,70 +130,76 @@ export default function Dashboard() {
                 )}
 
                 {!loading && filteredForms.length > 0 && (
-                    <ul className="space-y-3">
-                        {filteredForms.map((f) => (
-                            <li
-                                key={f.client_id + f.updated_at}
-                                className="border border-gray-300 p-2 pl-3 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white"
-                            >
-                                <div className="flex-1">
-                                    <div className="flex justify-between flex-1 items-center">
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex gap-2 items-center">
-                                                <span className="text-xs">Client ID:</span>
-                                                <span className="font-semibold text-gray-800">
-                                                    {f.data.clientId}
-                                                </span>
+                    <ul className="space-y-1.5">
+                        {filteredForms.map((f) => {
+                            return (
+                                <li
+                                    key={f.client_id + f.updated_at}
+                                    className="border border-gray-300 p-2 pl-3 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white"
+                                >
+                                    <div className="flex-1">
+                                        <div className="flex justify-between flex-1 items-center">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex gap-2 items-center">
+                                                    <span className="text-xs">Client ID:</span>
+                                                    <span className="font-semibold text-gray-800">
+                                                        {f.data.clientId}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex items-center gap-6">
-                                            <div className="flex gap-3 items-center">
-                                                <p className="flex items-center gap-1 text-xs text-gray-600">
-                                                    <span
-                                                        className={`text-gray-800 capitalize rounded-full px-3 py-1 text-xs ${f.status === "submitted"
+                                            <div className="flex items-center gap-6">
+                                                <div className="flex gap-3 items-center">
+                                                    <p className="flex items-center gap-1 text-xs text-gray-600">
+                                                        <span
+                                                            className={`text-gray-800 capitalize rounded-full px-3 py-1 text-xs ${f.status === "submitted"
                                                                 ? "bg-green-200"
                                                                 : "bg-yellow-200"
-                                                            }`}
-                                                    >
-                                                        {f.status}
-                                                    </span>
-                                                </p>
+                                                                }`}
+                                                        >
+                                                            {f.status}
+                                                        </span>
+                                                    </p>
 
-                                                <p className="text-xs text-gray-500">
-                                                    Last updated: {new Date(f.updated_at).toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                {f.status === "draft" && (
-                                                    <Link
-                                                        to={`/form/${f.id}`}
-                                                        className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
-                                                    >
-                                                        <Pencil width={14} strokeWidth={1.5} height={14} />
-                                                    </Link>
-                                                )}
+                                                    <p className="text-xs text-gray-500">
+                                                        Last updated: {new Date(f.updated_at).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <DownloadDropdown
+                                                        initialData={f}
+                                                        className="!py-1 !px-2 text-xs"
+                                                    />
+                                                    {f.status === "draft" && (
+                                                        <Link
+                                                            to={`/form/${f.id}`}
+                                                            className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
+                                                        >
+                                                            <Pencil width={14} strokeWidth={1.5} height={14} />
+                                                        </Link>
+                                                    )}
 
-                                                {f.status === "submitted" && (
-                                                    <Link
-                                                        to={`/form/${f.id}`}
-                                                        className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
+                                                    {f.status === "submitted" && (
+                                                        <Link
+                                                            to={`/form/${f.id}`}
+                                                            className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
+                                                        >
+                                                            <Eye width={14} strokeWidth={1.5} height={14} />
+                                                        </Link>
+                                                    )}
+                                                    <button
+                                                        onClick={() => openDeleteModal(f.id)}
+                                                        className="text-xs flex items-center gap-1 text-red-500 border border-red-500 px-2 py-1 rounded hover:bg-red-500 hover:border-red-500 transition-all duration-150 hover:text-white cursor-pointer"
                                                     >
-                                                        <Eye width={14} strokeWidth={1.5} height={14} />
-                                                    </Link>
-                                                )}
-                                                <button
-                                                    onClick={() => openDeleteModal(f.id)}
-                                                    className="text-xs flex items-center gap-1 text-red-500 border border-red-500 px-2 py-1 rounded hover:bg-red-500 hover:border-red-500 transition-all duration-150 hover:text-white cursor-pointer"
-                                                >
-                                                    <Trash width={14} strokeWidth={1.5} height={14} />
-                                                </button>
+                                                        <Trash width={14} strokeWidth={1.5} height={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </li>
-                        ))}
+                                </li>
+                            )
+                        })}
                     </ul>
                 )}
             </main>

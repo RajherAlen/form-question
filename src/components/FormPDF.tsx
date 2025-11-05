@@ -4,7 +4,7 @@ import { getOptionLabel, getQuestionLabel } from '../lib/formUtils';
 
 const styles = StyleSheet.create({
     page: { padding: 30, fontSize: 11, fontFamily: 'Helvetica' },
-    header: { fontSize: 16, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
+    header: { fontSize: 12, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
     section: { flex: 1 },
     wrapper: { display: 'flex', flexDirection: 'row', gap: 20, borderBottom: '1px solid #eee', paddingBottom: 8, marginBottom: 20 },
     label: { marginBottom: 4, fontSize: 9, color: '#333' },
@@ -26,8 +26,6 @@ export const FormPDF = ({ data }: { data: Record<string, any> }) => {
     return (
         <Document>
             <Page size="A4" style={styles.page}>
-                <Text style={styles.header}>Form Summary</Text>
-
                 <View style={styles.wrapper}>
                     <View style={styles.section}>
                         <Text style={styles.label}>Client Name:</Text>

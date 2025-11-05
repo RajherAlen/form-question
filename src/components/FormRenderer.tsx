@@ -40,14 +40,14 @@ export function FormRenderer({
         toast.success("Draft saved successfully!");
         navigate('/', { state: { refresh: true } });
     };
-    
+
     const handleSubmitAll = () => {
         // Check required fields
         if (!answers.clientId || !answers.clientName) {
             toast.warn("Client ID and Client Name are required!");
             return;
         }
-        
+
         onSubmit({ ...answers, status: "submitted", updated_at: new Date().toISOString() });
         navigate('/', { state: { refresh: true } });
         toast.success("Form submitted successfully!");
@@ -99,6 +99,11 @@ export function FormRenderer({
         }
     }
 
+    const handleCancel = () => {
+        onSubmit({ status: 'submitted' });
+        navigate('/', { state: { refresh: true } });
+    }
+
     useEffect(() => {
         if (initialData?.data) setAnswers(initialData.data);
     }, [initialData]);
@@ -115,19 +120,21 @@ export function FormRenderer({
                 }
             >
                 <div className="flex gap-2">
-
-
                     {initialData.status === "submitted" ? (
                         <div className="flex gap-2">
                             <DownloadDropdown
                                 initialData={initialData}
                             />
-                            <button onClick={handleDraftMode} className="bg-blue-500 text-white rounded px-4 py-2 hover:opacity-85 transition-all duration-200 cursor-pointer">
+                            <button onClick={handleDraftMode} className="bg-blue-500 text-white rounded px-4 py-1.5 hover:opacity-85 text-sm transition-all duration-200 cursor-pointer">
                                 Edit
                             </button>
                         </div>
                     ) : (
                         <>
+                            <button onClick={handleCancel} className="border border-red-500 text-red-500 rounded px-4 py-1.5 text-sm hover:opacity-85 transition-all duration-200 cursor-pointer">
+                                Cancel
+                            </button>
+
                             <button
                                 onClick={handleSaveDraft}
                                 className="border border-slate-600 text-black text-sm rounded px-4 py-1.5 hover:opacity-85 transition-all duration-200 cursor-pointer hover:bg-slate-600 hover:text-white"

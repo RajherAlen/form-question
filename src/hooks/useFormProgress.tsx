@@ -38,40 +38,37 @@ export function useFormProgress(id: string | null) {
             setSaving(true);
 
             try {
+                const payload = {
+                    client_id: newData.clientId,
+                    data: { ...data.data, ...newData }, // merge only into inner JSON
+                    updated_at: new Date().toISOString(),
+                    status: newData.status ?? data.status ?? "draft",
+                };
+
                 if (data.id) {
-                    // If primary id exists, update the existing row
                     const { error: updateError } = await supabase
                         .from("responses")
-                        .update({
-                            client_id: newData.clientId,
-                            data: newData,
-                            updated_at: new Date().toISOString(),
-                            status: newData.status ?? "draft",
-                        })
+                        .update(payload)
                         .eq("id", data.id);
 
                     if (updateError) throw updateError;
                 } else {
-                    // Otherwise insert a new row
                     const { data: inserted, error: insertError } = await supabase
                         .from("responses")
-                        .insert({
-                            client_id: newData.clientId,
-                            data: newData,
-                            updated_at: new Date().toISOString(),
-                            status: newData.status ?? "draft",
-                        })
+                        .insert(payload)
                         .select()
                         .maybeSingle();
 
                     if (insertError) throw insertError;
 
-                    // Store the newly created id in local state
-                    setData(inserted ?? newData);
+                    setData(inserted ?? { ...payload });
                 }
 
                 // Update local state
-                setData((prev) => ({ ...prev, ...newData }));
+                setData((prev) => ({
+                    ...prev,
+                    ...payload,
+                }));
             } catch (err: any) {
                 console.error("Error saving form data:", err.message);
             } finally {
@@ -81,9 +78,10 @@ export function useFormProgress(id: string | null) {
         [id, data]
     );
 
+
     const setToDraft = useCallback(async () => {
-        await save({ ...data, status: "draft" });
-    }, [data, save]);
+        await save({ status: "draft" });
+    }, [save])
 
     return { data, save, loading, saving, reload: load, setToDraft };
 }
