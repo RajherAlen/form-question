@@ -3,11 +3,11 @@ import { FormRenderer } from "../../components/FormRenderer";
 import { useFormProgress } from "../../hooks/useFormProgress";
 
 export default function FormPage() {
-  const { clientId } = useParams<{ clientId: string }>();
-  const isNew = clientId === "create";
+  const { id } = useParams<{ id: string }>();
+  const isNew = id === "create";
 
   // Pass null to skip fetching for new forms
-  const { data, save, loading, saving, setToDraft } = useFormProgress(isNew ? '' : clientId ?? "");
+  const { data, save, loading, saving, setToDraft } = useFormProgress(isNew ? '' : id ?? "");
 
   const initialData = isNew ? {} : data;
 

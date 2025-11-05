@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import MainHeader from "../../components/MainHeader";
@@ -18,6 +18,8 @@ export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
+    const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "submitted">("all");
+    const location = useLocation();
 
     const fetchForms = async () => {
         setLoading(true);
@@ -34,10 +36,6 @@ export default function Dashboard() {
         }
         setLoading(false);
     };
-
-    useEffect(() => {
-        fetchForms();
-    }, []);
 
     const handleDelete = async () => {
         if (!selectedFormId) return;
@@ -56,9 +54,21 @@ export default function Dashboard() {
         setIsModalOpen(true);
     };
 
-    const filteredForms = forms.filter((f) =>
-        f.client_id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredForms = forms
+        .filter((f) =>
+            f.client_id.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .filter((f) => statusFilter === "all" || f.status === statusFilter);
+
+    useEffect(() => {
+        fetchForms();
+    }, []);
+
+    useEffect(() => {
+        if (location.state?.refresh) {
+            fetchForms();
+        }
+    }, [location.state]);
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden h-screen bg-gray-50">
@@ -74,7 +84,7 @@ export default function Dashboard() {
 
             <main className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Search Input */}
-                <div className="mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
                     <div className="relative w-full sm:w-64">
                         <input
                             type="text"
@@ -85,13 +95,31 @@ export default function Dashboard() {
                         />
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     </div>
+
+                    {/* Segmented Control */}
+                    <div className="flex gap-1 bg-gray-200 rounded-lg p-1 text-sm">
+                        {(["all", "submitted", "draft"] as const).map((status) => (
+                            <button
+                                key={status}
+                                className={`px-3 py-1 rounded-lg transition cursor-pointer ${statusFilter === status
+                                        ? "bg-blue-600 text-white"
+                                        : "text-gray-700 hover:bg-gray-300"
+                                    }`}
+                                onClick={() => setStatusFilter(status)}
+                            >
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                {loading && <div>
-                    <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
-                    <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
-                    <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
-                </div>}
+                {loading && (
+                    <div>
+                        <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
+                        <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
+                        <div className="animate-pulse bg-gray-200 rounded h-11 mb-3"></div>
+                    </div>
+                )}
 
                 {!loading && filteredForms.length === 0 && (
                     <div className="text-gray-500">
@@ -112,7 +140,7 @@ export default function Dashboard() {
                                             <div className="flex gap-2 items-center">
                                                 <span className="text-xs">Client ID:</span>
                                                 <span className="font-semibold text-gray-800">
-                                                    {f.client_id}
+                                                    {f.data.clientId}
                                                 </span>
                                             </div>
                                         </div>
@@ -121,7 +149,9 @@ export default function Dashboard() {
                                             <div className="flex gap-3 items-center">
                                                 <p className="flex items-center gap-1 text-xs text-gray-600">
                                                     <span
-                                                        className={`text-gray-800 capitalize rounded-full px-3 py-1 text-xs ${f.status === "submitted" ? "bg-green-200" : "bg-yellow-200"
+                                                        className={`text-gray-800 capitalize rounded-full px-3 py-1 text-xs ${f.status === "submitted"
+                                                                ? "bg-green-200"
+                                                                : "bg-yellow-200"
                                                             }`}
                                                     >
                                                         {f.status}
@@ -135,7 +165,7 @@ export default function Dashboard() {
                                             <div className="flex gap-2">
                                                 {f.status === "draft" && (
                                                     <Link
-                                                        to={`/form/${f.client_id}`}
+                                                        to={`/form/${f.id}`}
                                                         className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
                                                     >
                                                         <Pencil width={14} strokeWidth={1.5} height={14} />
@@ -144,7 +174,7 @@ export default function Dashboard() {
 
                                                 {f.status === "submitted" && (
                                                     <Link
-                                                        to={`/form/${f.client_id}`}
+                                                        to={`/form/${f.id}`}
                                                         className="text-xs flex items-center gap-2 text-gray-900 border border-gray-900 px-2 py-1 rounded hover:bg-gray-900 hover:border-gray-900 transition-all duration-150 hover:text-white"
                                                     >
                                                         <Eye width={14} strokeWidth={1.5} height={14} />

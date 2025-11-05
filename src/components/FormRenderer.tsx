@@ -19,10 +19,6 @@ export function FormRenderer({
 
     const [answers, setAnswers] = useState<Record<string, any>>(initialData.data || {});
 
-    useEffect(() => {
-        if (initialData?.data) setAnswers(initialData.data);
-    }, [initialData]);
-
     const handleChange = (questionId: number | string, val: any) => {
         setAnswers((prev) => ({ ...prev, [questionId]: val }));
     };
@@ -34,6 +30,7 @@ export function FormRenderer({
     }
 
     const handleSaveDraft = () => {
+
         if (!answers?.clientId) {
             toast.warn("Client ID are required!");
             return;
@@ -41,18 +38,18 @@ export function FormRenderer({
         onSubmit({ ...answers, status: "draft", updated_at: new Date().toISOString() });
 
         toast.success("Draft saved successfully!");
-        navigate('/')
+        navigate('/', { state: { refresh: true } });
     };
-
+    
     const handleSubmitAll = () => {
         // Check required fields
         if (!answers.clientId || !answers.clientName) {
             toast.warn("Client ID and Client Name are required!");
             return;
         }
-
+        
         onSubmit({ ...answers, status: "submitted", updated_at: new Date().toISOString() });
-
+        navigate('/', { state: { refresh: true } });
         toast.success("Form submitted successfully!");
     };
 
@@ -102,9 +99,21 @@ export function FormRenderer({
         }
     }
 
+    useEffect(() => {
+        if (initialData?.data) setAnswers(initialData.data);
+    }, [initialData]);
+
     return (
         <div className="flex-1 flex flex-col overflow-hidden h-screen bg-gray-50">
-            <MainHeader headerTitle={initialData.data ? 'Edit Question Form' : "Create New Question Form"}>
+            <MainHeader
+                headerTitle={
+                    initialData.status === "submitted" && answers?.clientId
+                        ? answers.clientId
+                        : initialData.status === "draft"
+                            ? "Edit Question Form"
+                            : "Create New Question Form"
+                }
+            >
                 <div className="flex gap-2">
 
 
