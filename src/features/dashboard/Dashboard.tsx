@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { Eye, Pencil, Plus, Search, Trash } from "lucide-react";
 import MainHeader from "../../components/MainHeader";
@@ -18,6 +18,7 @@ export default function Dashboard() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
+    const location = useLocation();
 
     const fetchForms = async () => {
         setLoading(true);
@@ -35,9 +36,11 @@ export default function Dashboard() {
         setLoading(false);
     };
 
+
     useEffect(() => {
         fetchForms();
-    }, []);
+    }, [location.key]);
+
 
     const handleDelete = async () => {
         if (!selectedFormId) return;
