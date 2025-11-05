@@ -1,14 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-export function useFormProgress(clientId: string | null) {
+export function useFormProgress(id: string | null) {
     const [data, setData] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     const load = useCallback(async () => {
-        // If no clientId (new form), skip fetch and set loading false
-        if (!clientId) {
+        if (!id) {
             setData({});
             setLoading(false);
             return;
@@ -16,10 +15,11 @@ export function useFormProgress(clientId: string | null) {
 
         setLoading(true);
 
+        // Query JSON column 'data' for clientId
         const { data: result, error } = await supabase
             .from("responses")
             .select("*")
-            .eq("client_id", clientId)
+            .eq("id", id) // <-- check clientId inside JSON 'data' column
             .maybeSingle();
 
         if (error && error.code !== "PGRST116") {
@@ -28,7 +28,7 @@ export function useFormProgress(clientId: string | null) {
 
         setData(result ?? {});
         setLoading(false);
-    }, [clientId]);
+    }, [id]);
 
     useEffect(() => {
         load();
@@ -39,22 +39,47 @@ export function useFormProgress(clientId: string | null) {
             setSaving(true);
 
             try {
-                const { error } = await supabase.from("responses").upsert({
-                    client_id: newData.clientId || clientId || "",
-                    data: newData,
-                    updated_at: new Date().toISOString(),
-                    status: newData.status ?? "draft",
-                });
+                if (data.id) {
+                    // If primary id exists, update the existing row
+                    const { error: updateError } = await supabase
+                        .from("responses")
+                        .update({
+                            client_id: newData.clientId,
+                            data: newData,
+                            updated_at: new Date().toISOString(),
+                            status: newData.status ?? "draft",
+                        })
+                        .eq("id", data.id);
 
-                if (error) throw error;
-                setData(newData); // update local state after successful save
+                    if (updateError) throw updateError;
+                } else {
+                    // Otherwise insert a new row
+                    const { data: inserted, error: insertError } = await supabase
+                        .from("responses")
+                        .insert({
+                            client_id: newData.clientId,
+                            data: newData,
+                            updated_at: new Date().toISOString(),
+                            status: newData.status ?? "draft",
+                        })
+                        .select()
+                        .maybeSingle();
+
+                    if (insertError) throw insertError;
+
+                    // Store the newly created id in local state
+                    setData(inserted ?? newData);
+                }
+
+                // Update local state
+                setData((prev) => ({ ...prev, ...newData }));
             } catch (err: any) {
                 console.error("Error saving form data:", err.message);
             } finally {
                 setSaving(false);
             }
         },
-        [clientId]
+        [id, data]
     );
 
     const setToDraft = useCallback(async () => {

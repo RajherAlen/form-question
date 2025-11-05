@@ -14,7 +14,7 @@ export default function App() {
           <Route>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<IsLoggedInGuard><Dashboard /></IsLoggedInGuard>} />
-            <Route path="/form/:clientId" element={<IsLoggedInGuard><FormPage /></IsLoggedInGuard>} />
+            <Route path="/form/:id" element={<IsLoggedInGuard><FormPage /></IsLoggedInGuard>} />
           </Route>
         </Routes>
       </BrowserRouter>
