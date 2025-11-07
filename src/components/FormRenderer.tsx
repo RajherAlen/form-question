@@ -5,6 +5,7 @@ import MainHeader from "./MainHeader";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import DownloadDropdown from "./DownloadDropdown";
+import TeamsDropdown from "./TeamsDropdown"; // <- import your custom dropdown
 
 export function FormRenderer({
     initialData = {},
@@ -17,7 +18,11 @@ export function FormRenderer({
 }) {
     const navigate = useNavigate();
 
+    // Answers for questions
     const [answers, setAnswers] = useState<Record<string, any>>(initialData.data || {});
+
+    // Selected team
+    const [selectedTeam, setSelectedTeam] = useState<number | null>(initialData.team_id ?? null);
 
     const handleChange = (questionId: number | string, val: any) => {
         setAnswers((prev) => ({ ...prev, [questionId]: val }));
@@ -25,48 +30,48 @@ export function FormRenderer({
 
     const handleDraftMode = () => {
         if (setToDraft) {
-            setToDraft(answers);
+            onSubmit({ ...answers, team_id: selectedTeam, status: "draft" });
         }
     }
 
     const handleSaveDraft = () => {
-
         if (!answers.clientId || !answers.clientName || !answers.applicant) {
             toast.warn("Applicant, Client ID and Client Name are required!");
             return;
         }
 
-        onSubmit({ ...answers, status: "draft", updated_at: new Date().toISOString() });
+        onSubmit({ ...answers, team_id: selectedTeam, status: "draft", updated_at: new Date().toISOString() });
 
         toast.success("Draft saved successfully!");
         navigate('/', { state: { refresh: true } });
     };
 
     const handleSubmitAll = () => {
-        // Check required fields
         if (!answers.clientId || !answers.clientName || !answers.applicant) {
             toast.warn("Applicant, Client ID and Client Name are required!");
             return;
         }
 
-        onSubmit({ ...answers, status: "submitted", updated_at: new Date().toISOString() });
+        if (!selectedTeam) {
+            toast.warn("Please select a team!");
+            return;
+        }
+
+        onSubmit({ ...answers, team_id: selectedTeam, status: "submitted", updated_at: new Date().toISOString() });
         navigate('/', { state: { refresh: true } });
         toast.success("Form submitted successfully!");
     };
 
+    // Compute visible questions with jump logic
     const visibleQuestions: Question[] = [];
     const skippedIds = new Set<number | string>();
-
     const idToIndex = new Map<number | string, number>();
     formSchema.forEach((q, idx) => idToIndex.set(q.id, idx));
 
     for (let i = 0; i < formSchema.length; i++) {
         const q = formSchema[i];
-
-        // skip if previously marked by a jump
         if (skippedIds.has(q.id)) continue;
 
-        // check dependsOn (AND semantics)
         if (q.dependsOn && q.dependsOn.length > 0) {
             const visible = q.dependsOn.every((cond) => {
                 const answer = answers[cond.questionId];
@@ -76,24 +81,16 @@ export function FormRenderer({
             if (!visible) continue;
         }
 
-        // add question as visible
         visibleQuestions.push(q);
 
-        // if this question has an answer that maps to an option with jumpTo, mark intermediate questions as skipped
         const currentAnswer = answers[q.id];
         if (q.options && typeof currentAnswer !== "undefined" && currentAnswer !== null) {
             const matchedOption = q.options.find((opt) => opt.value === currentAnswer);
             if (matchedOption && matchedOption.jumpTo) {
-                // find index of question with id === jumpTo
                 const targetIdx = idToIndex.get(matchedOption.jumpTo);
                 if (typeof targetIdx !== "undefined") {
-                    // mark all between current pos (i) and targetIdx (exclusive) as skipped
-                    const start = i + 1;
-                    const end = targetIdx - 1;
-                    if (start <= end) {
-                        for (let j = start; j <= end; j++) {
-                            skippedIds.add(formSchema[j].id);
-                        }
+                    for (let j = i + 1; j <= targetIdx - 1; j++) {
+                        skippedIds.add(formSchema[j].id);
                     }
                 }
             }
@@ -107,6 +104,7 @@ export function FormRenderer({
 
     useEffect(() => {
         if (initialData?.data) setAnswers(initialData.data);
+        if (initialData?.team_id) setSelectedTeam(initialData.team_id);
     }, [initialData]);
 
     return (
@@ -123,9 +121,7 @@ export function FormRenderer({
                 <div className="flex gap-2">
                     {initialData.status === "submitted" ? (
                         <div className="flex gap-2">
-                            <DownloadDropdown
-                                initialData={initialData}
-                            />
+                            <DownloadDropdown initialData={initialData} />
                             <button onClick={handleDraftMode} className="bg-blue-500 text-white rounded px-4 py-1.5 hover:opacity-85 text-sm transition-all duration-200 cursor-pointer">
                                 Edit
                             </button>
@@ -135,17 +131,10 @@ export function FormRenderer({
                             <button onClick={handleCancel} className="border border-red-500 text-red-500 rounded px-4 py-1.5 text-sm hover:opacity-85 transition-all duration-200 cursor-pointer">
                                 Cancel
                             </button>
-
-                            <button
-                                onClick={handleSaveDraft}
-                                className="border border-slate-600 text-black text-sm rounded px-4 py-1.5 hover:opacity-85 transition-all duration-200 cursor-pointer hover:bg-slate-600 hover:text-white"
-                            >
+                            <button onClick={handleSaveDraft} className="border border-slate-600 text-black text-sm rounded px-4 py-1.5 hover:opacity-85 transition-all duration-200 cursor-pointer hover:bg-slate-600 hover:text-white">
                                 Save Draft
                             </button>
-                            <button
-                                onClick={handleSubmitAll}
-                                className="bg-green-600 text-white text-sm rounded px-4 py-1.5 hover:opacity-85 transition-all duration-200 cursor-pointer"
-                            >
+                            <button onClick={handleSubmitAll} className="bg-green-600 text-white text-sm rounded px-4 py-1.5 hover:opacity-85 transition-all duration-200 cursor-pointer">
                                 Submit All
                             </button>
                         </>
@@ -154,7 +143,12 @@ export function FormRenderer({
             </MainHeader >
 
             <div className="flex-1 overflow-y-auto p-6">
-                <div className=" max-w-4xl  space-y-6">
+                <div className="max-w-4xl space-y-6">
+                    {/* Teams dropdown added here at top of form */}
+                    <div className="mb-6 max-w-sm">
+                        <p className="text-sm text-gray-800">Team</p>
+                        <TeamsDropdown value={selectedTeam} onChange={setSelectedTeam} />
+                    </div>
 
                     {visibleQuestions.map((q: Question, idx: number) => (
                         <QuestionItem
@@ -168,6 +162,6 @@ export function FormRenderer({
                     ))}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
