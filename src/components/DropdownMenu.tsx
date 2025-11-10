@@ -29,7 +29,7 @@ export function DropdownMenuTrigger({
     children,
 }: {
     asChild?: boolean;
-    children: React.ReactElement;
+    children: React.ReactElement<any>;
 }) {
     const ctx = useContext(DropdownCtx);
     if (!ctx) throw new Error("DropdownMenuTrigger must be inside DropdownMenu");
@@ -38,7 +38,8 @@ export function DropdownMenuTrigger({
     if (asChild) {
         return React.cloneElement(children, {
             onClick: (e: React.MouseEvent) => {
-                children.props.onClick?.(e);
+                // safe call if child has its own onClick
+                if (children.props.onClick) children.props.onClick(e);
                 toggle();
             },
             ref: (node: HTMLElement) => {
@@ -51,11 +52,12 @@ export function DropdownMenuTrigger({
     }
 
     return (
-        <button type="button" onClick={toggle} ref={triggerRef}>
+        <button type="button" onClick={toggle} ref={triggerRef as React.Ref<HTMLButtonElement>}>
             {children}
         </button>
     );
 }
+
 
 export function DropdownMenuContent({
     children,
