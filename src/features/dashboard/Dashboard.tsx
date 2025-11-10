@@ -208,13 +208,19 @@ export default function Dashboard() {
                                             <div className="flex items-center gap-5">
                                                 <div className="flex gap-1 flex-col items-start ">
                                                     <p className="text-xs text-nowrap">Client ID:</p>
-                                                    <p className="font-semibold text-gray-800 truncate text-sm min-w-[300px] max-w-[300px]">
+                                                    <p className="font-semibold text-gray-800 truncate text-sm min-w-[200px] max-w-[200px]">
                                                         {f.data.clientId}
                                                     </p>
                                                 </div>
                                                 <div className="flex gap-1 flex-col items-start ">
+                                                    <p className="text-xs text-nowrap">Team:</p>
+                                                    <p className="font-semibold text-gray-800 truncate text-sm min-w-[200px] max-w-[200px]">
+                                                        {teamsMap[f.data.team_id] || '-'}
+                                                    </p>
+                                                </div>
+                                                <div className="flex gap-1 flex-col items-start ">
                                                     <p className="text-xs text-nowrap">Client Name:</p>
-                                                    <p className="font-semibold text-gray-800 truncate text-sm min-w-[300px] max-w-[300px]">
+                                                    <p className="font-semibold text-gray-800 truncate text-sm min-w-[200px] max-w-[200px]">
                                                         {f.data.clientName || '-'}
                                                     </p>
                                                 </div>

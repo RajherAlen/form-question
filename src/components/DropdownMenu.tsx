@@ -106,7 +106,7 @@ export function DropdownMenuContent({
     return (
         <div
             ref={ref}
-            className={`absolute z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-[8rem] ${align === "end" ? "right-0" : "left-0"
+            className={`absolute z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-[8rem] max-h-[300px] overflow-auto ${align === "end" ? "right-0" : "left-0"
                 } ${className}`}
         >
             {children}
