@@ -103,7 +103,7 @@ const TeamsPage = () => {
             </div>
 
             {/* Team List */}
-            <ul className="bg-white rounded-md max-w-xl p-3 shadow flex flex-col max-h-[400px] overflow-y-auto">
+            {teams.length === 0 ? <div className='text-gray-500'>No teams found. Click "Create" to add a team. </div> : <ul className="bg-white rounded-md max-w-xl p-3 shadow flex flex-col max-h-[400px] overflow-y-auto">
                 {teams.map((team, index) => (
                     <li
                         key={team.id}
@@ -129,7 +129,7 @@ const TeamsPage = () => {
                         </div>
                     </li>
                 ))}
-            </ul>
+            </ul>}
 
             {/* Delete Modal */}
             {isModalOpen && (
