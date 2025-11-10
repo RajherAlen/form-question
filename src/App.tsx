@@ -4,6 +4,7 @@ import FormPage from "./features/questions/FormPage";
 import { IsLoggedInGuard } from "./components/IsLoggedInGuard";
 import Login from "./features/login/Login";
 import { ToastContainer } from "react-toastify";
+import TeamsPage from "./features/TeamsPage";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<IsLoggedInGuard><Dashboard /></IsLoggedInGuard>} />
             <Route path="/form/:id" element={<IsLoggedInGuard><FormPage /></IsLoggedInGuard>} />
+            <Route path="/teams" element={<IsLoggedInGuard><TeamsPage /></IsLoggedInGuard>} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -31,6 +31,46 @@ export function QuestionItem({
     );
   }
 
+  if (question.type === "multiselect") {
+    return (
+      <div className="flex flex-col space-y-1">
+        <label className="text-sm text-gray-800">
+          {index + 1}. {question.label}
+        </label>
+        <div className="flex flex-col pl-6 gap-3 mt-1">
+          {question.options?.map((opt) => {
+            const checked = Array.isArray(value) && value.includes(opt.value);
+            return (
+              <label
+                key={opt.value}
+                className={`flex items-center gap-2 text-gray-800 text-sm ${disabled ? "cursor-not-allowed" : "cursor-pointer"
+                  }`}
+              >
+                <input
+                  type="checkbox"
+                  value={opt.value}
+                  checked={checked}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      // add value
+                      onChange([...(value || []), opt.value]);
+                    } else {
+                      // remove value
+                      onChange((value || []).filter((v: string) => v !== opt.value));
+                    }
+                  }}
+                  disabled={disabled}
+                  className="accent-blue-600"
+                />
+                {opt.label}
+              </label>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   if (question.type === "radio") {
     return (
       <div className="flex flex-col space-y-1">
@@ -41,9 +81,8 @@ export function QuestionItem({
           {question.options?.map((opt) => (
             <label
               key={opt.value}
-              className={`flex items-center gap-2 text-gray-800 text-sm ${
-                disabled  ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
+              className={`flex items-center gap-2 text-gray-800 text-sm ${disabled ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
             >
               <input
                 type="radio"

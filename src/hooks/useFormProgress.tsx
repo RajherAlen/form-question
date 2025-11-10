@@ -39,10 +39,12 @@ export function useFormProgress(id: string | null) {
 
             try {
                 const payload = {
+                    applicant: newData.applicant,
                     client_id: newData.clientId,
                     data: { ...data.data, ...newData }, // merge only into inner JSON
                     updated_at: new Date().toISOString(),
                     status: newData.status ?? data.status ?? "draft",
+                    team_id: newData.team_id ?? data.team_id,
                 };
 
                 if (data.id) {

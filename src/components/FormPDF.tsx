@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
 });
 
 export const FormPDF = ({ data }: { data: Record<string, any> }) => {
-    const { clientName, clientId, status, updated_at, ...responses } = data;
+    const { clientName, clientId, status, updated_at, applicant, ...responses } = data;
 
     const questions = Object.entries(responses)
         .filter(([key]) => /^\d+$/.test(key))
@@ -28,29 +28,44 @@ export const FormPDF = ({ data }: { data: Record<string, any> }) => {
             <Page size="A4" style={styles.page}>
                 <View style={styles.wrapper}>
                     <View style={styles.section}>
+                        <Text style={styles.label}>Applicant:</Text>
+                        <Text style={styles.text}>{applicant || '-'}</Text>
                         <Text style={styles.label}>Client Name:</Text>
-                        <Text style={styles.text}>{clientName}</Text>
+                        <Text style={styles.text}>{clientName || '-'}</Text>
                         <Text style={styles.label}>Client ID:</Text>
-                        <Text style={styles.text}>{clientId}</Text>
+                        <Text style={styles.text}>{clientId || '-'}</Text>
                     </View>
                     <View style={styles.section}>
                         <Text style={styles.label}>Status:</Text>
-                        <Text style={styles.text}>{status}</Text>
+                        <Text style={styles.text}>{status || '-'}</Text>
                         <Text style={styles.label}>Last Updated:</Text>
-                        <Text style={styles.text}>{new Date(updated_at).toLocaleString()}</Text>
+                        <Text style={styles.text}>{new Date(updated_at).toLocaleString() || '-'}</Text>
                     </View>
                 </View>
 
                 {questions.map(([key, value], index) => {
                     const qLabel = getQuestionLabel(key);
-                    const readableValue = getOptionLabel(key, value);
+
+                    // Handle multiple selections (arrays)
+                    let readableValue;
+                    if (Array.isArray(value)) {
+                        // Map each value to its readable label
+                        const labels = value.map((v) => getOptionLabel(key, v)).filter(Boolean);
+                        readableValue = labels.join(", ");
+                    } else {
+                        readableValue = getOptionLabel(key, value);
+                    }
+
                     return (
                         <View key={key} style={styles.questionBlock}>
-                            <Text style={styles.question}>{index + 1}. {qLabel}</Text>
+                            <Text style={styles.question}>
+                                {index + 1}. {qLabel}
+                            </Text>
                             <Text style={styles.answer}>{readableValue || '-'}</Text>
                         </View>
                     );
                 })}
+
             </Page>
         </Document>
     );

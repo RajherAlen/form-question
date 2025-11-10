@@ -13,13 +13,14 @@ export type QuestionDependency = {
 export type Question = {
   id: number | string;
   label: string;
-  type: "text" | "radio" | "select";
+  type: "text" | "radio" | "select" | 'multiselect';
   options?: QuestionOption[];
   dependsOn?: QuestionDependency[];
   required?: boolean;
 };
 
 export const formSchema: Question[] = [
+  { id: 'applicant', label: "Who is filling out this form?", type: "text" },
   { id: 'clientId', label: "Client ID", type: "text", required: true },
   { id: 'clientName', label: "Client Name", type: "text", required: true },
   { id: 3, label: "Who is the primary contact for the books and bookkeeping questions?", type: "text" },
@@ -236,7 +237,7 @@ export const formSchema: Question[] = [
     id: 29,
     label: "If payroll is filed by third party, from whom do we receive the payroll report?",
     type: "radio",
-      options: [
+    options: [
       { value: "client", label: "Client" },
       { value: "third_party", label: "Directly from third party" },
     ],
@@ -314,11 +315,10 @@ export const formSchema: Question[] = [
       { questionId: 35, value: "yes" },
     ],
   },
-
   {
     id: 37,
     label: "States",
-    type: "select",
+    type: "multiselect",
     options: [
       { value: "alabama", label: "Alabama" },
       { value: "alaska", label: "Alaska" },
